@@ -370,6 +370,13 @@ static enum hrtimer_restart ntp_leap_second(struct hrtimer *timer)
 			"Clock: inserting leap second 23:59:60 UTC\n");
 		hrtimer_add_expires_ns(&leap_timer, NSEC_PER_SEC);
 		res = HRTIMER_RESTART;
+		if (secs % 86400 == 0) {
+			leap = -1;
+			time_state = TIME_OOP;
+			time_tai++;
+			printk(KERN_NOTICE
+				"Clock: inserting leap second 23:59:60 UTC\n");
+		}
 		break;
 	case TIME_DEL:
 		timekeeping_leap_insert(1);
@@ -379,7 +386,6 @@ static enum hrtimer_restart ntp_leap_second(struct hrtimer *timer)
 			"Clock: deleting leap second 23:59:59 UTC\n");
 		break;
 	case TIME_OOP:
-		time_tai++;
 		time_state = TIME_WAIT;
 		/* fall through */
 	case TIME_WAIT:

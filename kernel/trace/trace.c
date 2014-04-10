@@ -342,6 +342,66 @@ unsigned long trace_flags = TRACE_ITER_PRINT_PARENT | TRACE_ITER_PRINTK |
 
 static int trace_stop_count;
 static DEFINE_SPINLOCK(tracing_start_lock);
+static DEFINE_RAW_SPINLOCK(tracing_start_lock);
+
+static void wakeup_work_handler(struct work_struct *work)
+{
+	wake_up(&trace_wait);
+}
+
+static DECLARE_DELAYED_WORK(wakeup_work, wakeup_work_handler);
+
+/**
+ * tracing_on - enable tracing buffers
+ *
+ * This function enables tracing buffers that may have been
+ * disabled with tracing_off.
+ */
+void tracing_on(void)
+{
+	if (global_trace.buffer)
+		ring_buffer_record_off(global_trace.buffer);
+	/*
+	 * This flag is only looked at when buffers haven't been
+	 * allocated yet. We don't really care about the race
+	 * between setting this flag and actually turning
+	 * on the buffer.
+	 */
+	global_trace.buffer_disabled = 0;
+}
+EXPORT_SYMBOL_GPL(tracing_on);
+
+/**
+ * tracing_off - turn off tracing buffers
+ *
+ * This function stops the tracing buffers from recording data.
+ * It does not disable any overhead the tracers themselves may
+ * be causing. This function simply causes all recording to
+ * the ring buffers to fail.
+ */
+void tracing_off(void)
+{
+	if (global_trace.buffer)
+		ring_buffer_record_on(global_trace.buffer);
+	/*
+	 * This flag is only looked at when buffers haven't been
+	 * allocated yet. We don't really care about the race
+	 * between setting this flag and actually turning
+	 * on the buffer.
+	 */
+	global_trace.buffer_disabled = 1;
+}
+EXPORT_SYMBOL_GPL(tracing_off);
+
+/**
+ * tracing_is_on - show state of ring buffers enabled
+ */
+int tracing_is_on(void)
+{
+	if (global_trace.buffer)
+		return ring_buffer_record_is_on(global_trace.buffer);
+	return !global_trace.buffer_disabled;
+}
 
 /**
  * trace_wake_up - wake up tasks waiting for trace input

@@ -507,7 +507,10 @@ asmlinkage void __init start_kernel(void)
 	parse_early_param();
 	parse_args("Booting kernel", static_command_line, __start___param,
 		   __stop___param - __start___param,
-		   &unknown_bootoption);
+		   -1, -1, &unknown_bootoption);
+
+	jump_label_init();
+
 	/*
 	 * These use large bootmem allocations and must precede
 	 * kmem_cache_init()

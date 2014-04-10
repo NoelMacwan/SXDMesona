@@ -1942,6 +1942,11 @@ static unsigned long read_swap_header(struct swap_info_struct *p,
 	 * 2) the number of bits in the a swap pte as defined by
 	 * the different architectures. In order to find the
 	 * largest possible bit mask a swap entry with swap type 0
+	 * device. There are two limiting factors: 1) the number
+	 * of bits for the swap offset in the swp_entry_t type, and
+	 * 2) the number of bits in the swap pte as defined by the
+	 * different architectures. In order to find the
+	 * largest possible bit mask, a swap entry with swap type 0
 	 * and swap offset ~0UL is created, encoded to a swap pte,
 	 * decoded to a swp_entry_t again and finally the swap
 	 * offset is extracted. This will mask all the bits from
@@ -1950,6 +1955,7 @@ static unsigned long read_swap_header(struct swap_info_struct *p,
 	 * swap pte.
 	 */
 	maxpages = swp_offset(pte_to_swp_entry(
+
 			swp_entry_to_pte(swp_entry(0, ~0UL)))) + 1;
 	if (maxpages > swap_header->info.last_page) {
 		maxpages = swap_header->info.last_page + 1;

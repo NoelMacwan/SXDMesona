@@ -144,7 +144,6 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
 			hcd->has_tt = 1;
 			tdi_reset(ehci);
 		}
-		break;
 	case PCI_VENDOR_ID_TDI:
 		if (pdev->device == PCI_DEVICE_ID_TDI_EHCI) {
 			hcd->has_tt = 1;

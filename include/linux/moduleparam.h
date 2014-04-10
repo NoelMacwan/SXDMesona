@@ -128,6 +128,41 @@ struct kparam_array
 #define module_param_cb(name, ops, arg, perm)				      \
 	__module_param_call(MODULE_PARAM_PREFIX,			      \
 			    name, ops, arg, __same_type((arg), bool *), perm)
+	__module_param_call(MODULE_PARAM_PREFIX, name, ops, arg, perm, -1)
+
+/**
+ * <level>_param_cb - general callback for a module/cmdline parameter
+ *                    to be evaluated before certain initcall level
+ * @name: a valid C identifier which is the parameter name.
+ * @ops: the set & get operations for this parameter.
+ * @perm: visibility in sysfs.
+ *
+ * The ops can have NULL set or get functions.
+ */
+#define __level_param_cb(name, ops, arg, perm, level)			\
+	__module_param_call(MODULE_PARAM_PREFIX, name, ops, arg, perm, level)
+
+#define core_param_cb(name, ops, arg, perm)		\
+	__level_param_cb(name, ops, arg, perm, 1)
+
+#define postcore_param_cb(name, ops, arg, perm)		\
+	__level_param_cb(name, ops, arg, perm, 2)
+
+#define arch_param_cb(name, ops, arg, perm)		\
+	__level_param_cb(name, ops, arg, perm, 3)
+
+#define subsys_param_cb(name, ops, arg, perm)		\
+	__level_param_cb(name, ops, arg, perm, 4)
+
+#define fs_param_cb(name, ops, arg, perm)		\
+	__level_param_cb(name, ops, arg, perm, 5)
+
+#define device_param_cb(name, ops, arg, perm)		\
+	__level_param_cb(name, ops, arg, perm, 6)
+
+#define late_param_cb(name, ops, arg, perm)		\
+	__level_param_cb(name, ops, arg, perm, 7)
+>>>>>>> 9dedc7a... Upgrading Linux Kernel 3.4.4
 
 /* On alpha, ia64 and ppc64 relocations to global data cannot go into
    read-only sections (which is part of respective UNIX ABI on these
@@ -161,6 +196,7 @@ struct kparam_array
 			    name, &__param_ops_##name, arg,		\
 			    __same_type(arg, bool *),			\
 			    (perm) + sizeof(__check_old_set_param(set))*0)
+			    (perm) + sizeof(__check_old_set_param(set))*0, -1)
 
 /* We don't get oldget: it's often a new-style param_get_uint, etc. */
 static inline int
@@ -242,6 +278,7 @@ static inline void __kernel_param_unlock(void)
 	param_check_##type(name, &(var));				\
 	__module_param_call("", name, &param_ops_##type,		\
 			    &var, __same_type(var, bool), perm)
+	__module_param_call("", name, &param_ops_##type, &var, perm, -1)
 #endif /* !MODULE */
 
 /**
@@ -260,6 +297,7 @@ static inline void __kernel_param_unlock(void)
 	__module_param_call(MODULE_PARAM_PREFIX, name,			\
 			    &param_ops_string,				\
 			    .str = &__param_string_##name, 0, perm);	\
+			    .str = &__param_string_##name, perm, -1);  	\
 	__MODULE_PARM_TYPE(name, "string")
 
 /* Called on module insert or kernel boot */
@@ -378,6 +416,7 @@ extern int param_get_invbool(char *buffer, const struct kernel_param *kp);
 			    &param_array_ops,				\
 			    .arr = &__param_arr_##name,			\
 			    __same_type(array[0], bool), perm);		\
+			     perm, -1);					\
 	__MODULE_PARM_TYPE(name, "array of " #type)
 
 extern struct kernel_param_ops param_array_ops;
