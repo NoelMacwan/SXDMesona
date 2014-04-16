@@ -64,7 +64,6 @@ static int ext4_group_used_meta_blocks(struct super_block *sb,
 	/* block bitmap, inode bitmap, and inode table blocks */
 	int used_blocks = sbi->s_itb_per_group + 2;
 
-<<<<<<< HEAD
 	if (EXT4_HAS_INCOMPAT_FEATURE(sb, EXT4_FEATURE_INCOMPAT_FLEX_BG)) {
 		if (!ext4_block_in_group(sb, ext4_block_bitmap(sb, gdp),
 					block_group))
@@ -79,7 +78,7 @@ static int ext4_group_used_meta_blocks(struct super_block *sb,
 				sbi->s_itb_per_group; tmp++) {
 			if (!ext4_block_in_group(sb, tmp, block_group))
 				used_blocks -= 1;
-=======
+
 	/* This is the number of clusters used by the superblock,
 	 * block group descriptors, and reserved block group
 	 * descriptor blocks */
@@ -111,7 +110,6 @@ static int ext4_group_used_meta_blocks(struct super_block *sb,
 	return used_blocks;
 }
 
-<<<<<<< HEAD
 /* Initializes an uninitialized block bitmap if given, and returns the
  * number of blocks free in the group. */
 unsigned ext4_init_block_bitmap(struct super_block *sb, struct buffer_head *bh,
@@ -135,7 +133,7 @@ unsigned ext4_init_block_bitmap(struct super_block *sb, struct buffer_head *bh,
 			ext4_itable_unused_set(sb, gdp, 0);
 			memset(bh->b_data, 0xff, sb->s_blocksize);
 			return 0;
-=======
+
 	if (ext4_block_in_group(sb, ext4_inode_bitmap(sb, gdp), block_group)) {
 		inode_cluster = EXT4_B2C(sbi,
 					 ext4_inode_bitmap(sb, gdp) - start);
